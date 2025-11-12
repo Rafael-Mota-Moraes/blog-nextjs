@@ -12,6 +12,14 @@ export function formatDateTime(rawDate: string): string {
   });
 }
 
+export function formatHour(timestampMs: number): string {
+  const date = new Date(timestampMs);
+
+  return format(date, "HH:mm:ss", {
+    locale: ptBR,
+  });
+}
+
 export function formatDistanceToNow(rawDate: string): string {
   const date = new Date(rawDate);
 

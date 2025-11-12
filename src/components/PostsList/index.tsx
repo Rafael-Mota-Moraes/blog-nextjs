@@ -1,13 +1,12 @@
-import { postRepository } from "@/repositories/post";
 import { PostCoverImage } from "../PostConverImage";
 import { PostSummary } from "../PostSummary";
-import { findAllPublicPosts } from "@/lib/post/queries";
+import { findAllPublicPostsCached } from "@/lib/post/queries";
 
 export default async function PostsList() {
-  const posts = await findAllPublicPosts();
+  const posts = await findAllPublicPostsCached();
 
   return (
-    <div className="grid grid-cols-1  sm:grid-cols-2 lg:grid-cols-3 gap-8">
+    <div className="grid grid-cols-1  sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
       {posts.slice(1).map((post) => {
         const postLink = `/post/${post.slug}`;
         return (
