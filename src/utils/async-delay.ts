@@ -1,11 +1,5 @@
-import { logColor } from "./log-color";
-
-export async function asyncDelay(milliseconds: number, verbose = false) {
+export async function asyncDelay(milliseconds: number) {
   if (milliseconds <= 0) return;
-
-  if (verbose) {
-    logColor(`Delaying for ${milliseconds}ms`);
-  }
 
   await new Promise((resolve) => setTimeout(resolve, milliseconds));
 }

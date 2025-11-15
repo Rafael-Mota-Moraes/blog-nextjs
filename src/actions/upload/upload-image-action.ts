@@ -1,10 +1,6 @@
 "use server";
 
-import {
-  IMAGE_SERVER_URL,
-  IMAGE_UPLOAD_DIRECTORY,
-  IMAGE_UPLOADER_MAX_SIZE,
-} from "@/lib/constants";
+import { getLoginSession } from "@/lib/login/manage-login";
 import { writeFile } from "fs/promises";
 import { mkdir } from "fs/promises";
 import { extname, resolve } from "path";
@@ -13,14 +9,27 @@ type UploadImageActionResult = {
   url: string;
   error: string;
 };
+const uploadMaxSize =
+  Number(process.env.NEXT_PUBLIC_IMAGE_UPLOADER_MAX_SIZE) || 921600;
+
+const imageUploadDirectory =
+  String(process.env.IMAGE_UPLOAD_DIRECTORY) || "uploads";
+
+const imageServerUrl =
+  String(process.env.IMAGE_SERVER_URL) || "http://localhost:3000";
 
 export async function uploadImageAction(
   formData: FormData
 ): Promise<UploadImageActionResult> {
+  const isAuthenticated = await getLoginSession();
+
   const makeResult = ({ url = "", error = "" }) => {
     return { url, error };
   };
 
+  if (!isAuthenticated) {
+    return makeResult({ error: "Faça login para atualizar um post" });
+  }
   if (!(formData instanceof FormData)) {
     return makeResult({ error: "Dados inválidos" });
   }
@@ -30,7 +39,7 @@ export async function uploadImageAction(
     return makeResult({ error: "Arquivo inválido" });
   }
 
-  if (file.size > IMAGE_UPLOADER_MAX_SIZE) {
+  if (file.size > uploadMaxSize) {
     return makeResult({ error: "Arquivo muito grande" });
   }
 
@@ -41,11 +50,7 @@ export async function uploadImageAction(
   const imageExtension = extname(file.name);
   const uniqueImageName = `${Date.now()}${imageExtension}`;
 
-  const uploadFullPath = resolve(
-    process.cwd(),
-    "public",
-    IMAGE_UPLOAD_DIRECTORY
-  );
+  const uploadFullPath = resolve(process.cwd(), "public", imageUploadDirectory);
 
   await mkdir(uploadFullPath, { recursive: true });
 
@@ -55,7 +60,7 @@ export async function uploadImageAction(
   const fileFullPath = resolve(uploadFullPath, uniqueImageName);
 
   await writeFile(fileFullPath, buffer);
-  const url = `${IMAGE_SERVER_URL}/uploads/${uniqueImageName}`;
+  const url = `${imageServerUrl}/uploads/${uniqueImageName}`;
 
   return makeResult({ url });
 }

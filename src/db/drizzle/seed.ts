@@ -8,7 +8,7 @@ import { JsonPostRepository } from "@/repositories/post/json-post-repository";
   try {
     await drizzleDb.delete(postsTable);
     await drizzleDb.insert(postsTable).values(posts);
-  } catch (err) {
-    console.log("Ocorreu um erro...");
+  } catch (e) {
+    console.log(e);
   }
 })();
